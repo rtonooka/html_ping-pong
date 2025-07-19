@@ -71,6 +71,21 @@
         height: 25px;
       }
     }
+    .controls {
+      display: flex;
+      flex-direction: row;
+      gap: 30px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .color-control {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
     .scoreboard {
       margin-top: 10px;
       font-size: 24px;
@@ -100,6 +115,19 @@
       value="32"
       id="slider-right"
     />
+  </div>
+  <div class="controls">
+
+    <div class="color-control">
+      <label for="update-interval">Update Interval (ms)</label>
+      <select id="update-interval">
+        <option value="16">16</option>
+        <option value="33">33</option>
+        <option value="50" selected>50</option>
+        <option value="100">100</option>
+        <option value="200">200</option>
+      </select>
+    </div>
   </div>
 
   <script src="lcd_emulater.js"></script>

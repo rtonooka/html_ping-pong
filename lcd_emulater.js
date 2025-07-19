@@ -289,6 +289,8 @@ racketR.SetPosY(sliderRMax - document.getElementById("slider-left").value);
 // サイクリック実行
 // =====================================================
 
+let intervalId = null;
+
 function update() {
   // LCDやcanvasを毎フレーム更新
     lcd.clear();
@@ -302,7 +304,19 @@ function update() {
 
 }
 
+function startInterval(ms) {
+  if (intervalId !== null) {
+    clearInterval(intervalId);
+  }
+  intervalId = setInterval(update, ms);
+}
 
-setInterval(() => {
-  update();
-}, 50); // ← 1000ミリ秒 = 1秒
+document.getElementById("update-interval").addEventListener("change", function () {
+  const newMs = parseInt(this.value, 10);
+  startInterval(newMs);
+});
+
+window.onload = () => {
+  const initMs = parseInt(document.getElementById("update-interval").value, 10);
+  startInterval(initMs);
+};
