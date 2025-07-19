@@ -112,18 +112,18 @@ class CObjBase {
     GetCenterX()    { return this.curInfo.curPos.x + Math.floor(this.curInfo.size.w / 2);}
     GetCenterY()    { return this.curInfo.curPos.y + Math.floor(this.curInfo.size.l / 2);}
 
-    OnHitHorizontalWall() {  this.curInfo.acccel.x *= -1;  }
+    OnHitHorizontalWall(theIsL) {  this.curInfo.acccel.x *= -1;  }
     OnHitVerticalWall() {  this.curInfo.acccel.y *= -1;  }
 
 	CheckHitWall() {
         if (this.curInfo.curPos.x < 0) {
             this.curInfo.curPos.x = 0;  // 画面の左端に固定
-            this.OnHitHorizontalWall();
+            this.OnHitHorizontalWall(true);
         }
     
         if (this.curInfo.curPos.x + this.curInfo.size.w > CLcd.LCD_WIDTH) {
             this.curInfo.curPos.x = CLcd.LCD_WIDTH - this.curInfo.size.w;
-            this.OnHitHorizontalWall();
+            this.OnHitHorizontalWall(false);
         }
     
         if (this.curInfo.curPos.y <= 0) {
@@ -164,11 +164,28 @@ class CObjBase {
 }
 
 class Cball extends CObjBase {
-    OnHitHorizontalWall() {  
+	constructor(x, y, w, h, ax = 1, ay = 1) {
+        super(x, y, w, h, ax, ay);
+        this.score = {
+        left: 0,
+        right: 0
+        };
+	}
+    OnHitHorizontalWall(theIsL) {  
         // this.status.isMove = false;
         this.curInfo = JSON.parse(JSON.stringify(this.initInfo));
+        // scoring
+        if (theIsL){
+            this.curInfo.acccel.x = 1;
+            this.curInfo.acccel.y = 0;
+            this.score.right++;
+        }
+        else{
+            this.curInfo.acccel.x = -1;
+            this.curInfo.acccel.y = 0;
+            this.score.left++;
+        }
         this.SetLcdCenter();
-
     };
 
     OnHitRacket(theRacket){
@@ -281,6 +298,8 @@ function update() {
 
     ball.Move(racketL, racketR);
     ball.Draw(lcd);
+    document.getElementById("scoreboard").textContent = ball.score.left + " : " + ball.score.right;
+
 }
 
 
