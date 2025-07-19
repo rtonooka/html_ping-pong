@@ -78,32 +78,16 @@ class CLcd {
 	}
 }
 
-class CHMIMouseInput { 
-    static isDragging = false;
-    static startX = 0;
-    static startY = 0; 
-    constructor(theCbOnMouseDown, theCbOnMouseMove, theCbOnMouseUp) {
-        this.cbOnMouseDown = theCbOnMouseDown;
-        this.cbOnMouseMove = theCbOnMouseMove;
-        this.cbOnMouseUp = theCbOnMouseUp;  
-        document.addEventListener("mousedown", (e) => {
-        	this.isDragging = true;
-        	this.startX = e.clientX;
-        	this.startY = e.clientY;
-            this.cbOnMouseDown();
-        }); 
-        document.addEventListener("mousemove", (e) => {
-        	if (!this.isDragging) return;    
-        	const dx = e.clientX - this.startX;
-        	const dy = e.clientY - this.startY;
-            this.cbOnMouseMove(dx, dy);
-        }); 
-        document.addEventListener("mouseup", () => {
-        	this.isDragging = false;
-            mouseDragStartY = racketR.curInfo.curPos.y
-            mouseDragDy = 0
-            this.cbOnMouseUp();
-        }); 
+class CHMISliderInput {  
+    static sliderEle;
+    constructor(theSliderId, theMax, theCbOnSliderMove) {
+        this.sliderEle = document.getElementById(theSliderId)
+        this.sliderEle.max = theMax;
+        this.sliderEle.value = Math.floor(theMax / 2);
+        this.sliderEle.addEventListener("input", (e) => {
+            const value = e.target.value;
+            theCbOnSliderMove(value);
+        });
     }
 }
 
@@ -167,13 +151,14 @@ class CObjBase {
         this.curInfo.curPos.y = CLcd.LCD_HEIGHT / 2 - Math.floor(this.curInfo.size.l / 2);
     };
     SetPosY(theY) { 
-        if (theY + this.curInfo.size.l > CLcd.LCD_HEIGHT - 1 ){
+        const y = Number(theY);
+        if (y + this.curInfo.size.l > CLcd.LCD_HEIGHT - 1 ){
             this.curInfo.curPos.y = CLcd.LCD_HEIGHT - this.curInfo.size.l;
         }
-        else if(theY < 0) {
+        else if(y < 0) {
             this.curInfo.curPos.y = 0;
         }else {
-            this.curInfo.curPos.y = theY;
+            this.curInfo.curPos.y = y;
         }
     };
 }
@@ -270,44 +255,29 @@ class Cball extends CObjBase {
 
 // 初期化と描画
 const lcd = new CLcd('lcd');
-mouseDragStartY = 0;
-mouseDragDy = 0;
-const mouseInput = new CHMIMouseInput(
-    function(){
-        mouseDragStartY = racketR.curInfo.curPos.y;
-    },
-    function(dx, dy){
-        mouseDragDy = dy;
-        // console.log("dx =", dx, "dy =", mouseDragDy);
-    },
-    function(){
-        mouseDragStartY = racketR.curInfo.curPos.y;
-        mouseDragDy = 0;
-    },
-);
 
+// パーツの初期化
 const ball = new Cball(CLcd.LCD_WIDTH / 2,CLcd.LCD_HEIGHT / 2,5,5,1,1);
 const racketL = new CObjBase(2, 0, 2, 20, 0, 1);
 const racketR = new CObjBase(CLcd.LCD_WIDTH - 2 - 2, CLcd.LCD_HEIGHT / 2, 2, 20, 0, 1);
 
+const sliderLMax = CLcd.LCD_HEIGHT - racketL.curInfo.size.l;
+const sliderRMax = CLcd.LCD_HEIGHT - racketR.curInfo.size.l;
+const sliderL = new CHMISliderInput("slider-left", sliderLMax, function(theValue){ racketL.SetPosY(sliderLMax - theValue);});
+const sliderR = new CHMISliderInput("slider-right", sliderRMax, function(theValue){ racketR.SetPosY(sliderRMax - theValue);});
+
+racketL.SetPosY(sliderLMax - document.getElementById("slider-left").value);
+racketR.SetPosY(sliderRMax - document.getElementById("slider-left").value);
 // =====================================================
 // サイクリック実行
 // =====================================================
 
 function update() {
   // LCDやcanvasを毎フレーム更新
-    racketL.Erase(lcd);
-    racketR.Erase(lcd);
-    ball.Erase(lcd);
+    lcd.clear();
 
-    racketL.SetPosY(mouseDragStartY + mouseDragDy);
     racketL.Draw(lcd);
-
-
-    racketR.SetPosY(mouseDragStartY + mouseDragDy);
     racketR.Draw(lcd);
-
-
 
     ball.Move(racketL, racketR);
     ball.Draw(lcd);
