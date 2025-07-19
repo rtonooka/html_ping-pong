@@ -4,16 +4,94 @@
   <meta charset="UTF-8">
   <title>LCDエミュレータ</title>
   <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      box-sizing: border-box;
+      background: #f0f0f0;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+    }
+
     canvas {
       image-rendering: pixelated;
       width: 512px;
       height: 256px;
       border: 1px solid #000;
     }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 200px;
+      height: 30px;
+      writing-mode: bt-lr;
+      transform: rotate(270deg);
+      touch-action: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 40px;
+      height: 40px;
+      background: #333;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 40px;
+      height: 40px;
+      background: #333;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    /* スマホ以外ではスライダーを少し小さくする */
+    @media (min-width: 768px) {
+      input[type="range"] {
+        width: 150px;
+      }
+
+      input[type="range"]::-webkit-slider-thumb,
+      input[type="range"]::-moz-range-thumb {
+        width: 25px;
+        height: 25px;
+      }
+    }
   </style>
 </head>
 <body>
-  <canvas id="lcd" width="128" height="64"></canvas>
+  <div class="container">
+    <input
+      type="range"
+      min="0"
+      max="400"
+      value="200"
+      id="slider-left"
+    />
+
+    <canvas id="lcd" width="128" height="64"></canvas>
+
+    <input
+      type="range"
+      min="0"
+      max="400"
+      value="200"
+      id="slider-right"
+    />
+  </div>
+
   <script src="lcd_emulater.js"></script>
 </body>
 </html>
